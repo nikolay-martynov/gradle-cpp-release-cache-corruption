@@ -3,7 +3,7 @@
 To reproduce:
 
 ```bash
-/gradlew --stop ; rm -rf .gradle/ ; ./gradlew clean build ; echo incremental build ; ./gradlew build ; echo releaase ; ./gradlew release ; echo build after release ; ./gradlew clean build ; ./gradlew --stop ; rm -rf .gradle/ ; echo build after cache cleanup ; ./gradlew clean build
+./gradlew --stop ; rm -rf .gradle/ ; ./gradlew clean build ; echo incremental build ; ./gradlew build ; echo releaase ; ./gradlew release ; echo build after release ; ./gradlew clean build ; ./gradlew --stop ; rm -rf .gradle/ ; echo build after cache cleanup ; ./gradlew clean build
 ```
 
 Notice how build after release fails until cache is deleted manually.
