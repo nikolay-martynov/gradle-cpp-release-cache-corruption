@@ -8,14 +8,47 @@
 
 plugins {
     // Apply the cpp-application plugin to add support for building C++ executables
-    id 'cpp-application'
+    id 'cpp'
+    id 'groovy'
 
-    // Apply the cpp-unit-test plugin to add support for building and running C++ test executables
-    id 'cpp-unit-test'
   id 'net.researchgate.release' version '2.8.1'
 }
 
 // Set the target operating system and architecture for this application
+/*
 application {
     targetMachines.add(machines.linux.x86_64)
+}
+*/
+
+model {
+    repositories {
+        libs(PrebuiltLibraries) {
+            jdkApi {
+                headers.srcDirs "${System.properties['java.home']}/../include"
+                headers.srcDirs "${System.properties['java.home']}/../include/linux"
+            }
+        }
+    }
+   /* platforms {
+        x64 { architecture "x86_64" }
+    }*/
+    components {
+        main(NativeExecutableSpec) {
+           // targetPlatform("x64")
+            sources {
+                cpp {
+                    builtBy project.tasks.processResources
+                    exportedHeaders {
+                        srcDir "src/main/headers"
+                    }
+                }
+            }
+            binaries.all {
+                cppCompiler.args "-Wall"
+                linker.args "-pthread"
+                lib library: 'jdkApi', linkage: 'api'
+	    }
+	}
+    }
 }

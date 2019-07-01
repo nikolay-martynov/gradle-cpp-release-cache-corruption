@@ -1,0 +1,65 @@
+= Demonstrates gradle daemon cache corruption with cpp plugin
+
+To reproduce:
+
+```bash
+/gradlew --stop ; rm -rf .gradle/ ; ./gradlew clean build ; echo incremental build ; ./gradlew build ; echo releaase ; ./gradlew release ; echo build after release ; ./gradlew clean build ; ./gradlew --stop ; rm -rf .gradle/ ; echo build after cache cleanup ; ./gradlew clean build
+```
+
+Notice how build after release fails until cache is deleted manually.
+
+```
+Starting a Gradle Daemon, 8 stopped Daemons could not be reused, use --status for details
+
+BUILD SUCCESSFUL in 6s
+4 actionable tasks: 4 executed
+incremental build
+
+BUILD SUCCESSFUL in 796ms
+3 actionable tasks: 3 up-to-date
+releaase
+
+> Task :release FAILED
+Release process failed, reverting back any changes made by Release Plugin.
+
+FAILURE: Build failed with an exception.
+
+* What went wrong:
+A problem occurred configuring project ':xxx'.
+> Exception thrown while executing model rule: ComponentModelBasePlugin.PluginRules#createSourceTransformTasks(TaskContainer, ModelMap<BinarySpecInternal>, LanguageTransformContainer, ServiceRegistry)
+   > Could not create task ':xxx:compileMainExecutableMainCpp'.
+      > Could not create task of type 'CppCompile'.
+         > Could not create service of type DefaultCompilationStateCacheFactory.
+
+* Try:
+Run with --stacktrace option to get the stack trace. Run with --info or --debug option to get more log output. Run with --scan to get full insights.
+
+* Get more help at https://help.gradle.org
+
+BUILD FAILED in 814ms
+1 actionable task: 1 executed
+build after release
+
+FAILURE: Build failed with an exception.
+
+* What went wrong:
+A problem occurred configuring root project 'xxx'.
+> Exception thrown while executing model rule: ComponentModelBasePlugin.PluginRules#createSourceTransformTasks(TaskContainer, ModelMap<BinarySpecInternal>, LanguageTransformContainer, ServiceRegistry)
+   > Could not create task ':compileMainExecutableMainCpp'.
+      > Could not create task of type 'CppCompile'.
+         > Could not create service of type DefaultCompilationStateCacheFactory.
+
+* Try:
+Run with --stacktrace option to get the stack trace. Run with --info or --debug option to get more log output. Run with --scan to get full insights.
+
+* Get more help at https://help.gradle.org
+
+BUILD FAILED in 629ms
+Stopping Daemon(s)
+1 Daemon stopped
+build after cache cleanup
+Starting a Gradle Daemon, 9 stopped Daemons could not be reused, use --status for details
+
+BUILD SUCCESSFUL in 6s
+4 actionable tasks: 4 executed
+```
